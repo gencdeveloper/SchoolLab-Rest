@@ -2,10 +2,12 @@ package com.cydeo.service.impl;
 
 import com.cydeo.client.WeatherApiClient;
 import com.cydeo.dto.AddressDTO;
+import com.cydeo.dto.weather.WeatherResponse;
 import com.cydeo.entity.Address;
 import com.cydeo.util.MapperUtil;
 import com.cydeo.repository.AddressRepository;
 import com.cydeo.service.AddressService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -14,7 +16,8 @@ import java.util.stream.Collectors;
 
 @Service
 public class AddressServiceImpl implements AddressService {
-
+    @Value("${access_key}")
+    private String accessKey;
     private final AddressRepository addressRepository;
     private final MapperUtil mapperUtil;
     private final WeatherApiClient weatherApiClient;
@@ -46,8 +49,12 @@ public class AddressServiceImpl implements AddressService {
     }
 
     private Integer retrieveTemperatureByCity(String city) {
-     return weatherApiClient.getCurrentWeather("87e785a9468054d73eaf989af1e4a99a",city)
-             .getCurrent().getTemperature();
+     WeatherResponse weatherResponse = weatherApiClient.getCurrentWeather(accessKey,city);
+
+         if(weatherResponse ==null || weatherResponse.getCurrent() ==null){
+             return null;
+         }
+        return weatherResponse.getCurrent().getTemperature();
     }
 
     @Override
