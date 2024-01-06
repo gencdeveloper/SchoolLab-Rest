@@ -1,5 +1,6 @@
 package com.cydeo.service.impl;
 
+import com.cydeo.client.WeatherApiClient;
 import com.cydeo.dto.AddressDTO;
 import com.cydeo.entity.Address;
 import com.cydeo.util.MapperUtil;
@@ -16,10 +17,12 @@ public class AddressServiceImpl implements AddressService {
 
     private final AddressRepository addressRepository;
     private final MapperUtil mapperUtil;
+    private final WeatherApiClient weatherApiClient;
 
-    public AddressServiceImpl(AddressRepository addressRepository, MapperUtil mapperUtil) {
+    public AddressServiceImpl(AddressRepository addressRepository, MapperUtil mapperUtil, WeatherApiClient weatherApiClient) {
         this.addressRepository = addressRepository;
         this.mapperUtil = mapperUtil;
+        this.weatherApiClient = weatherApiClient;
     }
 
     @Override
@@ -34,7 +37,17 @@ public class AddressServiceImpl implements AddressService {
     public AddressDTO findById(Long id) throws Exception {
         Address foundAddress = addressRepository.findById(id)
                 .orElseThrow(() -> new Exception("No Address Found!"));
-        return mapperUtil.convert(foundAddress, new AddressDTO());
+
+        AddressDTO addressDTO = mapperUtil.convert(foundAddress, new AddressDTO());
+        //we will get the current temperature and set based on city, then return dto
+        addressDTO.setCurrentTemperature(retrieveTemperatureByCity(addressDTO.getCity()));
+
+        return  addressDTO;
+    }
+
+    private Integer retrieveTemperatureByCity(String city) {
+     return weatherApiClient.getCurrentWeather("87e785a9468054d73eaf989af1e4a99a",city)
+             .getCurrent().getTemperature();
     }
 
     @Override
