@@ -2,7 +2,6 @@ package com.cydeo.controller;
 
 import com.cydeo.dto.AddressDTO;
 import com.cydeo.dto.ResponseWrapper;
-import com.cydeo.dto.StudentDTO;
 import com.cydeo.dto.TeacherDTO;
 import com.cydeo.service.AddressService;
 import com.cydeo.service.ParentService;
@@ -23,11 +22,13 @@ public class SchoolController {
     private final TeacherService teacherService;
     private final StudentService studentService;
     private final ParentService parentService;
+    private final AddressService addressService;
 
-    public SchoolController(TeacherService teacherService, StudentService studentService, ParentService parentService) {
+    public SchoolController(TeacherService teacherService, StudentService studentService, ParentService parentService,AddressService addressService) {
         this.teacherService = teacherService;
         this.studentService = studentService;
         this.parentService = parentService;
+        this.addressService = addressService;
     }
 
     //Write a method for teachers and return list of teachers
@@ -67,6 +68,57 @@ public class SchoolController {
                 .header("Parent","Returned")
                 .body(new ResponseWrapper(true,"parents are successfully retrieved.",
                         HttpStatus.ACCEPTED.value(),parentService.findAll()));
+    }
+
+     /*  6MIN
+        create an endpoint for individual address information
+        /address/1 2 3
+        return status code 200
+        "address .. is successfully retrieved" message
+        success true
+        and address information
+     */
+
+    @GetMapping("/address/{id}")
+    public ResponseEntity<ResponseWrapper> getAddressById(@PathVariable("id") Long id) throws Exception {
+        //find the address to return
+        AddressDTO addressDTO = addressService.findById(id);
+
+        return ResponseEntity.ok(new ResponseWrapper("Address "+id+" successfully retrieved",addressDTO));
+    }
+
+    /*
+       HW
+       create an endpoint to update individual address information
+       return updated address directly.
+    */
+    @PutMapping("/address/{id}")
+    public AddressDTO UpdateAddressById(@PathVariable("id") Long id, @RequestBody AddressDTO addressDTO) throws Exception {
+        addressDTO.setId(id);
+
+        AddressDTO updateAddress = addressService.update(addressDTO);
+
+        return updateAddress;
+    }
+
+/*
+        create an endpoint for creating teacher
+        return Http status 201
+        custom header "teacherId","idCreated"
+        responseWrapper("Teacher is created",teacherInfo)
+     */
+
+    @PostMapping("/teachers")
+    public ResponseEntity<ResponseWrapper> createTeacher(@Valid @RequestBody TeacherDTO teacherDTO){
+        TeacherDTO teacher = teacherService.createTeacher(teacherDTO);
+
+        ResponseWrapper responseWrapper = new ResponseWrapper(true,"Teacher is created."
+                ,HttpStatus.CREATED.value(),teacher);
+
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .header("teacherId",String.valueOf(teacher.getId()))
+                .body(responseWrapper);
+
     }
 
 }
