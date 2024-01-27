@@ -2,6 +2,7 @@ package com.cydeo.controller;
 
 import com.cydeo.dto.AddressDTO;
 import com.cydeo.dto.ResponseWrapper;
+import com.cydeo.dto.StudentDTO;
 import com.cydeo.dto.TeacherDTO;
 import com.cydeo.service.AddressService;
 import com.cydeo.service.ParentService;
@@ -20,9 +21,11 @@ public class SchoolController {
 
 
     private final TeacherService teacherService;
+    private final StudentService studentService;
 
-    public SchoolController(TeacherService teacherService) {
+    public SchoolController(TeacherService teacherService,StudentService studentService) {
         this.teacherService = teacherService;
+        this.studentService = studentService;
     }
 
     //Write a method for teachers and return list of teachers
@@ -30,6 +33,15 @@ public class SchoolController {
     public List<TeacherDTO> allTeachers(){
         return teacherService.findAll();
     }
+
+    @GetMapping("/students")
+    public ResponseEntity<ResponseWrapper> readAllStudents(){
+        return ResponseEntity.ok(
+                new ResponseWrapper("Students are successfully retrieved",
+                        studentService.findAll()));
+    }
+
+
 
 
 }
