@@ -22,10 +22,12 @@ public class SchoolController {
 
     private final TeacherService teacherService;
     private final StudentService studentService;
+    private final ParentService parentService;
 
-    public SchoolController(TeacherService teacherService,StudentService studentService) {
+    public SchoolController(TeacherService teacherService, StudentService studentService, ParentService parentService) {
         this.teacherService = teacherService;
         this.studentService = studentService;
+        this.parentService = parentService;
     }
 
     //Write a method for teachers and return list of teachers
@@ -34,6 +36,13 @@ public class SchoolController {
         return teacherService.findAll();
     }
 
+    /*  7MIN
+       create an endpoint for students, where json response includes
+       "students are successfully retrieved." message
+       code:200
+       success:true
+       and student data
+    */
     @GetMapping("/students")
     public ResponseEntity<ResponseWrapper> readAllStudents(){
         return ResponseEntity.ok(
@@ -41,7 +50,23 @@ public class SchoolController {
                         studentService.findAll()));
     }
 
+    /*     7 MIN
+           create a parents endpoint where status code is 202
+           additional header has "Parent" , "Returned"
+           and following body structure
+           "parents are successfully retrieved." message
+           code:202
+           success: true
+           and parent data.
+     */
 
-
+    @GetMapping("/parents")
+    public ResponseEntity<ResponseWrapper> readAllParents(){
+        return ResponseEntity
+                .status(HttpStatus.ACCEPTED)
+                .header("Parent","Returned")
+                .body(new ResponseWrapper(true,"parents are successfully retrieved.",
+                        HttpStatus.ACCEPTED.value(),parentService.findAll()));
+    }
 
 }
